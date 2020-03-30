@@ -1,0 +1,52 @@
+body, html{
+    margin:0;
+    background-color:#a5c2e6;
+    color:#2e3640;
+}
+
+h1, h2, h3{
+    padding-left:20px;
+    margin:10px 0;
+}
+
+.menu_ul{
+    list-style-type: none;
+}
+
+.menu_li{
+    border:1px solid black;
+    border-top:0;
+    border-right:0;
+    width:30%;
+    padding:10px;
+    box-shadow:-5px 5px #5c6c80;
+}
+
+.menu_li:hover{
+    box-shadow:-5px 5px #8aa2bf;
+}
+
+a{
+    color:black;
+    text-decoration:none;
+}
+
+.miniaturka{
+    width:384px;
+    height:216px;
+}
+
+.galeria{
+    display:flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.galeria a{
+    margin:10px;
+    padding:0;
+    background-color:#b7d8ff;
+    box-shadow: 5px 5px #2e3640;
+    text-align:center;
+    width:384px;
+}

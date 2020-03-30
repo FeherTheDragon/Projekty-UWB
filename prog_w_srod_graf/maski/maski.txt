@@ -1,0 +1,448 @@
+// ZADANIE 2 - MASKA
+
+// Metoda sluzaca do zapelnienia tablicy wartosci masek w celu zablokowania jej na czas nie podania prawidlowych wartosci od -9 do 9
+void inicjalizujMaske()
+{
+    for (int i = 0; i < 3; i++)
+    {
+        for (int j = 0; j < 3; j++)
+        {
+            maska[i, j] = 100;
+        }
+    }
+}
+
+// Metoda dzialajaca przy kazdym wpisaniu wartosi do pol tekstowych, weryfikujaca czy dana wartosc jest liczba i miesci sie we wskazanym przez nas przedziale
+// Gdy wszystkie 9 wartosci bedzie poprawnych, przycisk do utworzenia maski aktywuje sie
+void odblokujMaska()
+{
+    buttonMaska.Enabled = false;
+    Boolean flaga = true;
+    for (int i = 0; i < 3; i++)
+    {
+        for (int j = 0; j < 3; j++)
+        {
+            if (maska[i, j] > 9 || maska[i, j] < -9)
+            {
+                flaga = false;
+            }
+        }
+    }
+
+    if (flaga) buttonMaska.Enabled = true;
+}
+
+// Nastepne 9 metod to pola tekstowe o takim samym dzialaniu. Weryfikuja poprawnosc wpisywanego tekstu, a nastepnie ustawiaja go na poprawne miejsce w tablicy oraz uzywaja metody do odblokowania przycisku
+private void text1_TextChanged(object sender, EventArgs e)
+{
+    int value;
+
+    if (int.TryParse(text1.Text, out value))
+    {
+        if (value <= 9 && value >= -9)
+        {
+            maska[0, 0] = value;
+            errorbox.Text = "";
+            odblokujMaska();
+        }
+        else
+        {
+            errorbox.Text = "Nieprawidłowa wartość na pozycji [0,0] w Masce!";
+            buttonMaska.Enabled = false;
+        }
+    }
+    else
+    {
+        errorbox.Text = "Nieprawidłowa wartość na pozycji [0,0] w Masce!";
+        buttonMaska.Enabled = false;
+    }
+}
+
+private void text2_TextChanged(object sender, EventArgs e)
+{
+    int value;
+
+    if (int.TryParse(text2.Text, out value))
+    {
+        if (value <= 9 && value >= -9)
+        {
+            maska[0, 1] = value;
+            errorbox.Text = "";
+            odblokujMaska();
+        }
+        else
+        {
+            errorbox.Text = "Nieprawidłowa wartość na pozycji [0,1] w Masce!";
+            buttonMaska.Enabled = false;
+        }
+    }
+    else
+    {
+        errorbox.Text = "Nieprawidłowa wartość na pozycji [0,1] w Masce!";
+        buttonMaska.Enabled = false;
+    }
+}
+
+private void text3_TextChanged(object sender, EventArgs e)
+{
+    int value;
+
+    if (int.TryParse(text3.Text, out value))
+    {
+        if (value <= 9 && value >= -9)
+        {
+            maska[0, 2] = value;
+            errorbox.Text = "";
+            odblokujMaska();
+        }
+        else
+        {
+            errorbox.Text = "Nieprawidłowa wartość na pozycji [0,2] w Masce!";
+            buttonMaska.Enabled = false;
+        }
+    }
+    else
+    {
+        errorbox.Text = "Nieprawidłowa wartość na pozycji [0,2] w Masce!";
+        buttonMaska.Enabled = false;
+    }
+}
+
+private void text4_TextChanged(object sender, EventArgs e)
+{
+    int value;
+
+    if (int.TryParse(text4.Text, out value))
+    {
+        if (value <= 9 && value >= -9)
+        {
+            maska[1, 0] = value;
+            errorbox.Text = "";
+            odblokujMaska();
+        }
+        else
+        {
+            errorbox.Text = "Nieprawidłowa wartość na pozycji [1,0] w Masce!";
+            buttonMaska.Enabled = false;
+        }
+    }
+    else
+    {
+        errorbox.Text = "Nieprawidłowa wartość na pozycji [1,0] w Masce!";
+        buttonMaska.Enabled = false;
+    }
+}
+
+private void text5_TextChanged(object sender, EventArgs e)
+{
+    int value;
+
+    if (int.TryParse(text5.Text, out value))
+    {
+        if (value <= 9 && value >= -9)
+        {
+            maska[1, 1] = value;
+            errorbox.Text = "";
+            odblokujMaska();
+        }
+        else
+        {
+            errorbox.Text = "Nieprawidłowa wartość na pozycji [1,1] w Masce!";
+            buttonMaska.Enabled = false;
+        }
+    }
+    else
+    {
+        errorbox.Text = "Nieprawidłowa wartość na pozycji [1,1] w Masce!";
+        buttonMaska.Enabled = false;
+    }
+}
+
+private void text6_TextChanged(object sender, EventArgs e)
+{
+    int value;
+
+    if (int.TryParse(text6.Text, out value))
+    {
+        if (value <= 9 && value >= -9)
+        {
+            maska[1,2] = value;
+            errorbox.Text = "";
+            odblokujMaska();
+        }
+        else
+        {
+            errorbox.Text = "Nieprawidłowa wartość na pozycji [1,2] w Masce!";
+            buttonMaska.Enabled = false;
+        }
+    }
+    else
+    {
+        errorbox.Text = "Nieprawidłowa wartość na pozycji [1,2] w Masce!";
+        buttonMaska.Enabled = false;
+    }
+}
+
+private void text7_TextChanged(object sender, EventArgs e)
+{
+    int value;
+
+    if (int.TryParse(text7.Text, out value))
+    {
+        if (value <= 9 && value >= -9)
+        {
+            maska[2, 0] = value;
+            errorbox.Text = "";
+            odblokujMaska();
+        }
+        else
+        {
+            errorbox.Text = "Nieprawidłowa wartość na pozycji [2,0] w Masce!";
+            buttonMaska.Enabled = false;
+        }
+    }
+    else
+    {
+        errorbox.Text = "Nieprawidłowa wartość na pozycji [2,0] w Masce!";
+        buttonMaska.Enabled = false;
+    }
+}
+
+private void text8_TextChanged(object sender, EventArgs e)
+{
+    int value;
+
+    if (int.TryParse(text8.Text, out value))
+    {
+        if (value <= 9 && value >= -9)
+        {
+            maska[2,1] = value;
+            errorbox.Text = "";
+            odblokujMaska();
+        }
+        else
+        {
+            errorbox.Text = "Nieprawidłowa wartość na pozycji [2,1] w Masce!";
+            buttonMaska.Enabled = false;
+        }
+    }
+    else
+    {
+        errorbox.Text = "Nieprawidłowa wartość na pozycji [2,1] w Masce!";
+        buttonMaska.Enabled = false;
+    }
+}
+
+private void text9_TextChanged(object sender, EventArgs e)
+{
+    int value;
+
+    if (int.TryParse(text9.Text, out value))
+    {
+        if (value <= 9 && value >= -9)
+        {
+            maska[2,2] = value;
+            errorbox.Text = "";
+            odblokujMaska();
+        }
+        else
+        {
+            errorbox.Text = "Nieprawidłowa wartość na pozycji [2,2] w Masce!";
+            buttonMaska.Enabled = false;
+        }
+    }
+    else
+    {
+        errorbox.Text = "Nieprawidłowa wartość na pozycji [2,2] w Masce!";
+        buttonMaska.Enabled = false;
+    }
+}
+
+// Przycisk do utworzenia maski z obrazu.
+private void buttonMaska_Click(object sender, EventArgs e)
+{
+    Bitmap b1 = (Bitmap)pictureBox1.Image;
+    Bitmap b2 = (Bitmap)pictureBox2.Image;
+
+    Color k, k1, k2, k3, k4, k5, k6, k7, k8, k9;
+    int r, g, b, suma_maski = 0;
+
+    for (int x = 0; x < width; x++)
+    {
+        for (int y = 0; y < height; y++)
+        {
+            // Ustawianie odpowiedniej wartosci dla otoczenia aktualnego piksela
+            // Uwzgledniam tutaj to, czy piksel posiada wokol siebie inne piksele
+            // Gdy jaki piksel z otoczenia nie istnieje, to na jego miejsce przypisane zostaja wartosci dla koloru czarnego (0, 0, 0), gdyz nie wplywaja one na wzor do wykonania maski i uzywane sa jedynie te, ktore istnieja
+        
+            //warunek dla k1 (lewy gorny rog piksela)
+            if (x-1 == -1 || y-1 == -1) k1 = Color.FromArgb(0, 0, 0);
+            else k1 = b1.GetPixel(x - 1, y - 1);
+            //warunek dla k2 (nad pikselem)
+            if (x-1 == -1) k2 = Color.FromArgb(0, 0, 0);
+            else k2 = b1.GetPixel(x - 1, y);
+            //warunek dla k3 (prawy gorny rog piksela)
+            if (x-1 == -1 || y+1 == height) k3 = Color.FromArgb(0, 0, 0);
+            else k3 = b1.GetPixel(x-1, y+1);
+            //warunek dla k4 (lewy bok piksela)
+            if (y-1 == -1) k4 = Color.FromArgb(0, 0, 0);
+            else k4 = b1.GetPixel(x, y - 1);
+            //warunek dla k5 (piksel srodkowy)
+            k5 = b1.GetPixel(x, y);
+            //warunek dla k6 (prawy bok piksela)
+            if (y+1 == height) k6 = Color.FromArgb(0, 0, 0);
+            else k6 = b1.GetPixel(x, y+1);
+            //warunek dla k7 (lewy dolny rog piksela)
+            if (x+1 == width || y-1 == -1) k7 = Color.FromArgb(0, 0, 0);
+            else k7 = b1.GetPixel(x + 1, y - 1);
+            //warunek dla k8 (dol piksela)
+            if (x+1 == width) k8 = Color.FromArgb(0, 0, 0);
+            else k8 = b1.GetPixel(x + 1, y);
+            //warunek dla k9 (prawy dolny rog piksela)
+            if (x+1 == width || y+1 == height) k9 = Color.FromArgb(0, 0, 0);
+            else k9 = b1.GetPixel(x + 1, y + 1);
+
+            r = (k1.R * maska[0, 0]) + (k2.R * maska[0, 1]) + (k3.R * maska[0, 2]) + (k4.R * maska[1, 0]) + (k5.R * maska[1, 1]) + (k6.R * maska[1, 2]) + (k7.R * maska[2, 0]) + (k8.R * maska[2, 1]) + (k9.R * maska[2, 2]);
+            g = (k1.G * maska[0, 0]) + (k2.G * maska[0, 1]) + (k3.G * maska[0, 2]) + (k4.G * maska[1, 0]) + (k5.G * maska[1, 1]) + (k6.G * maska[1, 2]) + (k7.G * maska[2, 0]) + (k8.G * maska[2, 1]) + (k9.G * maska[2, 2]);
+            b = (k1.B * maska[0, 0]) + (k2.B * maska[0, 1]) + (k3.B * maska[0, 2]) + (k4.B * maska[1, 0]) + (k5.B * maska[1, 1]) + (k6.B * maska[1, 2]) + (k7.B * maska[2, 0]) + (k8.B * maska[2, 1]) + (k9.B * maska[2, 2]);
+
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    suma_maski += maska[i, j];
+                }
+            }
+
+            if (suma_maski != 0) r = r / suma_maski;
+            if (r > 255) r = 255;
+            if (r < 0) r = 0;
+
+            if (suma_maski != 0) g = g / suma_maski;
+            if (g > 255) g = 255;
+            if (g < 0) g = 0;
+
+            if (suma_maski != 0) b = b / suma_maski;
+            if (b > 255) b = 255;
+            if (b < 0) b = 0;
+
+            //errorbox.Text = maska[0, 0] + "   " + maska[0, 1] + "   " + maska[0, 2] + "   " + maska[1, 0] + "   " + maska[1, 1] + "   " + maska[1, 2] + "   " + maska[2, 0] + "   " + maska[2, 1] + "   " + maska[2, 2];
+            //errorbox.Text = r + " = " + r + " / " + suma_maski + " = " + r / suma_maski;
+
+            k = Color.FromArgb(r, g, b);
+            b2.SetPixel(x, y, k);
+
+            suma_maski = 0;
+        }
+    }
+
+    pictureBox2.Refresh();
+}
+
+// Ponizej znajduja sie przyciski, ktore ustawiaja wartosci dla przykladowych masek, w celu szybszego ich uzycia gdy potrzebujemy konkretnej funkcji
+
+private void button11_Click(object sender, EventArgs e)
+{
+    text1.Text = "1";
+    text2.Text = "1";
+    text3.Text = "1";
+    text4.Text = "1";
+    text5.Text = "1";
+    text6.Text = "1";
+    text7.Text = "1";
+    text8.Text = "1";
+    text9.Text = "1";
+}
+
+private void button12_Click(object sender, EventArgs e)
+{
+    text1.Text = "1";
+    text2.Text = "-2";
+    text3.Text = "1";
+    text4.Text = "-2";
+    text5.Text = "5";
+    text6.Text = "-2";
+    text7.Text = "1";
+    text8.Text = "-2";
+    text9.Text = "1";
+}
+
+private void button13_Click(object sender, EventArgs e)
+{
+    text1.Text = "-1";
+    text2.Text = "0";
+    text3.Text = "0";
+    text4.Text = "0";
+    text5.Text = "1";
+    text6.Text = "0";
+    text7.Text = "0";
+    text8.Text = "0";
+    text9.Text = "0";
+}
+
+private void button14_Click(object sender, EventArgs e)
+{
+    text1.Text = "-1";
+    text2.Text = "1";
+    text3.Text = "1";
+    text4.Text = "-1";
+    text5.Text = "-2";
+    text6.Text = "1";
+    text7.Text = "-1";
+    text8.Text = "1";
+    text9.Text = "1";
+}
+
+private void button15_Click(object sender, EventArgs e)
+{
+    text1.Text = "-1";
+    text2.Text = "0";
+    text3.Text = "1";
+    text4.Text = "-1";
+    text5.Text = "1";
+    text6.Text = "1";
+    text7.Text = "-1";
+    text8.Text = "0";
+    text9.Text = "1";
+}
+
+private void button16_Click(object sender, EventArgs e)
+{
+    text1.Text = "0";
+    text2.Text = "-1";
+    text3.Text = "0";
+    text4.Text = "-1";
+    text5.Text = "4";
+    text6.Text = "-1";
+    text7.Text = "0";
+    text8.Text = "-1";
+    text9.Text = "0";
+}
+
+private void button17_Click(object sender, EventArgs e)
+{
+    text1.Text = "1";
+    text2.Text = "2";
+    text3.Text = "1";
+    text4.Text = "0";
+    text5.Text = "0";
+    text6.Text = "0";
+    text7.Text = "-1";
+    text8.Text = "-2";
+    text9.Text = "-1";
+}
+
+
+private void button18_Click(object sender, EventArgs e)
+{
+    text1.Text = "-1";
+    text2.Text = "-1";
+    text3.Text = "-1";
+    text4.Text = "0";
+    text5.Text = "0";
+    text6.Text = "0";
+    text7.Text = "1";
+    text8.Text = "1";
+    text9.Text = "1";
+}
+}
