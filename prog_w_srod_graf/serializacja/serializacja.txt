@@ -1,0 +1,91 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Xml.Serialization;
+
+namespace zajecia3a
+{
+    public partial class Form1 : Form
+    {
+        public Dane dane = new Dane();
+        private int width = 0;
+        private int height = 0;
+
+        //private int[,] maska = new int[3, 3];
+
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        // [...] Tutaj stary kod
+
+        // serializacja i deserializacja
+
+        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            StreamWriter sw = new StreamWriter("dane.xml");
+            try
+            {
+                XmlSerializer serializer = new XmlSerializer(typeof(Dane));
+                serializer.Serialize(sw, dane);
+                sw.Close();
+            }
+            catch (Exception err)
+            {
+                Text = err.ToString();          //wyswietl komunikat w pasku tytułowym
+            }
+            finally
+            {
+                sw.Close();
+            }
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            StreamReader sr = new StreamReader("dane.xml");
+            try
+            {
+                XmlSerializer serializer = new XmlSerializer(typeof(Dane));
+                dane = (Dane)serializer.Deserialize(sr);
+
+                trackBar1.Value = dane.poziomJasnCiem;
+                trackBar2.Value = dane.poziomProg1;
+                trackBar3.Value = dane.poziomProg2;
+
+                text1.Text = dane.m1.ToString();
+                text2.Text = dane.m2.ToString();
+                text3.Text = dane.m3.ToString();
+                text4.Text = dane.m4.ToString();
+                text5.Text = dane.m5.ToString();
+                text6.Text = dane.m6.ToString();
+                text7.Text = dane.m7.ToString();
+                text8.Text = dane.m8.ToString();
+                text9.Text = dane.m9.ToString();
+            }
+            catch (Exception err)
+            {
+                Text = err.ToString();
+            }
+            finally
+            {
+                sr.Close();
+            }
+        }
+    }
+
+    public class Dane
+    {
+        public int poziomJasnCiem = 0;
+        public int poziomProg1 = 0;
+        public int poziomProg2 = 0;
+        public int m1 = 0, m2 = 0, m3 = 0, m4 = 0, m5 = 1, m6 = 0, m7 = 0, m8 = 0, m9 = 0;
+    }
+}
