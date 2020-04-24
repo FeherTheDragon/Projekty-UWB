@@ -1,0 +1,218 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Xml.Serialization;
+
+namespace GraZycie
+{
+    public partial class Form1 : Form
+    {
+        public Dane dane = new Dane();
+
+        private Boolean start_gry = false;
+        private int[,] plansza;
+        private int[,] plansza_temp;
+
+        private float szer = 800;
+        private float wys = 800;
+
+        private int ile_sasiadow(int x, int y)
+        {
+            int suma;
+            suma = plansza[x - 1, y - 1] + plansza[x, y - 1] + plansza[x + 1, y - 1] + plansza[x - 1, y] + plansza[x + 1, y] + plansza[x - 1, y + 1] + plansza[x, y + 1] + plansza[x + 1, y + 1];
+            return suma;
+        }
+
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void panel2_Paint(object sender, PaintEventArgs e)
+        {
+            if (start_gry){
+                szer = panel2.ClientRectangle.Width / dane.rozm;
+                wys = panel2.ClientRectangle.Height / dane.rozm;
+
+                this.Size = new System.Drawing.Size(Convert.ToInt32(szer * dane.rozm) + 16, Convert.ToInt32(szer * dane.rozm) + 139);
+
+                Brush stan_zycia = Brushes.YellowGreen;
+                Graphics g = e.Graphics;
+                for (int i = 0; i < dane.rozm; i++)
+                {
+                    for (int j = 0; j < dane.rozm; j++)
+                    {
+                        if (i == 0 || j == 0 || i == dane.rozm - 1 || j == dane.rozm - 1) stan_zycia = Brushes.Khaki;
+                        else if (plansza[i, j] == 0) stan_zycia = Brushes.Tomato;
+                        else stan_zycia = Brushes.YellowGreen;
+                        g.FillRectangle(stan_zycia, i * szer, j * wys, szer-1, wys-1);
+                        //g.DrawString(plansza[i, j].ToString(), new Font("Arial", szer / 2), Brushes.Black, (i * szer) + szer / 5, (j * wys) + wys / 10);
+                    }
+                }
+            }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            start_gry = true;
+
+            dane.rozm = Decimal.ToInt32(numericUpDown1.Value);
+            plansza = new int[dane.rozm, dane.rozm];
+            plansza_temp = new int[dane.rozm, dane.rozm];
+
+            for (int i = 0; i < dane.rozm; i++)
+            {
+                for (int j = 0; j < dane.rozm; j++)
+                {
+                    plansza[i, j] = 0;
+                }
+            }
+
+            plansza[dane.rozm / 2 - 1, dane.rozm / 2 - 1] = 1;
+            plansza[dane.rozm / 2 + 1, dane.rozm / 2 - 1] = 1;
+            plansza[dane.rozm / 2 - 1, dane.rozm / 2] = 1;
+            plansza[dane.rozm / 2, dane.rozm / 2] = 1;
+            plansza[dane.rozm / 2 + 1, dane.rozm / 2] = 1;
+            plansza[dane.rozm / 2 - 1, dane.rozm / 2 + 1] = 1;
+            plansza[dane.rozm / 2, dane.rozm / 2 + 1] = 1;
+            plansza[dane.rozm / 2 + 1, dane.rozm / 2 + 1] = 1;
+
+            dane.generacje = 0;
+            label1.Text = "Generacja: " + dane.generacje;
+
+            button2.Enabled = true;
+
+            Refresh();
+        }
+
+        private void Form1_Resize(object sender, EventArgs e)
+        {
+            Refresh();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            int stan, sasiedzi;
+
+            for (int x = 1; x < dane.rozm - 1; x++)
+            {
+                for (int y = 1; y < dane.rozm - 1; y++)
+                {
+                    stan = plansza[x, y];
+                    sasiedzi = ile_sasiadow(x, y);
+                    if (stan == 1)
+                    {
+                        if (sasiedzi < dane.reg1_samotnosc || sasiedzi > dane.reg2_przeludnienie) stan = 0;
+                    }
+                    else
+                    {
+                        if (sasiedzi <= dane.reg3_niemniej && sasiedzi >= dane.reg4_niewiecej) stan = 1;
+                    }
+                    plansza_temp[x, y] = stan;
+                }
+            }
+
+            for (int x = 1; x < dane.rozm - 1; x++)
+            {
+                for (int y = 1; y < dane.rozm - 1; y++)
+                {
+                    plansza[x, y] = plansza_temp[x, y];
+                }
+            }
+
+            dane.generacje++;
+
+            label1.Text = "Generacja: " + dane.generacje;
+
+            Refresh();
+        }
+
+        private void numericUpDown2_ValueChanged(object sender, EventArgs e)
+        {
+            dane.reg1_samotnosc = Decimal.ToInt32(numericUpDown2.Value);
+        }
+
+        private void numericUpDown3_ValueChanged(object sender, EventArgs e)
+        {
+            dane.reg2_przeludnienie = Decimal.ToInt32(numericUpDown3.Value);
+        }
+
+        private void numericUpDown4_ValueChanged(object sender, EventArgs e)
+        {
+            dane.reg3_niemniej = Decimal.ToInt32(numericUpDown4.Value);
+        }
+
+        private void numericUpDown5_ValueChanged(object sender, EventArgs e)
+        {
+            dane.reg4_niewiecej = Decimal.ToInt32(numericUpDown5.Value);
+        }
+
+        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            StreamWriter sw = new StreamWriter("dane.xml");
+            try
+            {
+                XmlSerializer serializer = new XmlSerializer(typeof(Dane));
+                serializer.Serialize(sw, dane);
+                sw.Close();
+            }
+            catch (Exception err)
+            {
+                Text = err.ToString();          //wyswietl komunikat w pasku tytułowym
+            }
+            finally
+            {
+                sw.Close();
+            }
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            if (File.Exists("dane.xml"))
+            {
+                StreamReader sr = new StreamReader("dane.xml");
+                try
+                {
+                    XmlSerializer serializer = new XmlSerializer(typeof(Dane));
+                    dane = (Dane)serializer.Deserialize(sr);
+
+                    numericUpDown1.Value = dane.rozm;
+
+                    numericUpDown2.Value = dane.reg1_samotnosc;
+                    numericUpDown3.Value = dane.reg2_przeludnienie;
+                    numericUpDown4.Value = dane.reg3_niemniej;
+                    numericUpDown5.Value = dane.reg4_niewiecej;
+
+                    label1.Text = "Generacja: " + dane.generacje;
+                }
+                catch (Exception err)
+                {
+                    Text = err.ToString();
+                }
+                finally
+                {
+                    sr.Close();
+                }
+            }
+        }
+
+        public class Dane
+        {
+            public int reg1_samotnosc = 2;
+            public int reg2_przeludnienie = 3;
+            public int reg3_niemniej = 3;
+            public int reg4_niewiecej = 3;
+
+            public int rozm = 30;
+
+            public int generacje = 0;
+        }
+    }
+}
