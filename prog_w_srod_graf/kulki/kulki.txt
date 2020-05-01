@@ -1,0 +1,82 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace Kulka
+{
+    public partial class Form1 : Form
+    {
+        //// Aby program dzialal poprawnie potrzeba wprowadzic poczatkowe dane:
+        // Ilosc kulek na planszy
+        private int ile_kulek = 5; 
+        // Pozycje kazdej z kulek na osi X i Y
+        private int[] pozycje_kulek_x = {0, 100, 300, 500, 500};
+        private int[] pozycje_kulek_y = {0, 200, 150, 300, 200};
+        // Kolory kulek
+        private Brush[] kolory_kulek = {Brushes.Indigo, Brushes.Crimson, Brushes.SeaGreen, Brushes.SaddleBrown, Brushes.YellowGreen};
+        // Predkosc (wyrazona w pikselach) z jaka przemieszczaja sie kulki i w jakim kierunku
+        private int[] wartosc_przemieszczania_x = { 10, -10, -10, -10, 10 };
+        private int[] wartosc_przemieszczania_y = { 10, -10, 10, -10, -10 };
+
+        // Szerokosc i wysokosc panelu ktory jest plansza
+        private int szer_panelu;
+        private int wys_panelu;
+        // Wielkosc kazdej kulki
+        private int wielkosc = 50;
+
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void panel1_Paint(object sender, PaintEventArgs e)
+        {
+            Graphics g = e.Graphics;
+            szer_panelu = panel1.ClientRectangle.Width;
+            wys_panelu = panel1.ClientRectangle.Height;
+
+            //Petla, ktora rysuje kazda kulke
+            for (int i = 0; i < ile_kulek; i++)
+            {
+                g.FillEllipse(kolory_kulek[i], pozycje_kulek_x[i], pozycje_kulek_y[i], wielkosc, wielkosc);
+            }
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            for (int i = 0; i < ile_kulek; i++)
+            {
+                // Instrukcje warunkowe, ktore sprawdzaja czy kulki stykaja sie ze scianami. Jezeli tak, to zmienia sie ich kierunek lotu
+                if (pozycje_kulek_x[i] + wielkosc > szer_panelu) wartosc_przemieszczania_x[i] *= -1; // Dla sciany prawej
+                if (pozycje_kulek_y[i] + wielkosc > wys_panelu) wartosc_przemieszczania_y[i] *= -1; // Dla sciany dolnej
+                if (pozycje_kulek_x[i] < 0) wartosc_przemieszczania_x[i] *= -1; // Dla sciany lewej
+                if (pozycje_kulek_y[i] < 0) wartosc_przemieszczania_y[i] *= -1; // Dla sciany gornej
+
+                // Druga petla, by pobierac informacje o kolejnej kulce
+                for (int j = 0; j < ile_kulek; j++)
+                {
+                    // Warunek, ktory dziala tylko gdy kulka i oraz j sa rozne, i sprawdza czy stykaja sie ze soba na podstawie swoich pozycji + rozmiaru
+                    if (i != j && pozycje_kulek_x[i] + wielkosc >= pozycje_kulek_x[j] && pozycje_kulek_x[i] <= pozycje_kulek_x[j] + wielkosc && pozycje_kulek_y[i] + wielkosc>= pozycje_kulek_y[j] && pozycje_kulek_y[i] <= pozycje_kulek_y[j] + wielkosc)
+                    {
+                        wartosc_przemieszczania_x[i] *= -1;
+                        wartosc_przemieszczania_y[i] *= -1;
+                        wartosc_przemieszczania_x[j] *= -1;
+                        wartosc_przemieszczania_y[j] *= -1;
+                    }
+                }
+
+                // Na koniec zmienia sie pozycje kulki
+                pozycje_kulek_x[i] += wartosc_przemieszczania_x[i];
+                pozycje_kulek_y[i] += wartosc_przemieszczania_y[i];
+            }
+
+            Refresh();
+        }
+    }
+}
