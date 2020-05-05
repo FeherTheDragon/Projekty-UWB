@@ -1,0 +1,63 @@
+// *** Lab 5 *** - Ustawienie Gammy
+private void numericUpDown1_ValueChanged(object sender, EventArgs e)
+{
+    decimal gamma = numericUpDown1.Value;
+
+    Bitmap b1 = (Bitmap)pictureBox1.Image;
+    Bitmap b2 = (Bitmap)pictureBox2.Image;
+
+    Color k;
+    int r, g, b;
+
+    for (int x = 0; x < width; x++)
+    {
+        for (int y = 0; y < height; y++)
+        {
+            k = b1.GetPixel(x, y);
+
+            r = (int)(255 * Math.Pow(k.R / 255.0, 1.0 / (double)gamma));
+            g = (int)(255 * Math.Pow(k.G / 255.0, 1.0 / (double)gamma));
+            b = (int)(255 * Math.Pow(k.B / 255.0, 1.0 / (double)gamma));
+
+            k = Color.FromArgb(r, g, b);
+
+            b2.SetPixel(x, y, k);
+        }
+    }
+
+    pictureBox2.Refresh();
+}
+
+// *** Lab 5 *** - Ustawienie Kontrastu
+private void numericUpDown2_ValueChanged(object sender, EventArgs e)
+{
+    decimal treshold = numericUpDown2.Value;
+    double contrast = Math.Pow((100.0 + (int)treshold) / 100, 2);
+
+    Bitmap b1 = (Bitmap)pictureBox1.Image;
+    Bitmap b2 = (Bitmap)pictureBox2.Image;
+
+    Color k;
+    int r, g, b;
+
+    for (int x = 0; x < width; x++)
+    {
+        for (int y = 0; y < height; y++)
+        {
+            k = b1.GetPixel(x, y);
+
+            r = (int)(((((k.R / 255.0) - 0.5) * contrast) + 0.5) * 255.0);
+            if (r > 255) r = 255; if (r < 0) r = 0;
+            g = (int)(((((k.G / 255.0) - 0.5) * contrast) + 0.5) * 255.0);
+            if (g > 255) g = 255; if (g < 0) g = 0;
+            b = (int)(((((k.B / 255.0) - 0.5) * contrast) + 0.5) * 255.0);
+            if (b > 255) b = 255; if (b < 0) b = 0;
+
+            k = Color.FromArgb(r, g, b);
+
+            b2.SetPixel(x, y, k);
+        }
+    }
+
+    pictureBox2.Refresh();
+}

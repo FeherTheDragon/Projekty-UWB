@@ -1,0 +1,186 @@
+// *** Lab 6 *** - Histogram
+private void button2_Click(object sender, EventArgs e)
+{
+    Bitmap b1 = (Bitmap)pictureBox1.Image;
+
+    red = new int[256];
+    green = new int[256];
+    blue = new int[256];
+
+    for (int x = 0; x < width; x++)
+    {
+        for (int y = 0; y < height; y++)
+        {
+            Color pixel = ((Bitmap)pictureBox1.Image).GetPixel(x, y);
+            red[pixel.R]++;
+            green[pixel.G]++;
+            blue[pixel.B]++;
+        }
+    }
+
+    this.chart.Visible = true;
+
+    this.chart.Series["red"].Points.Clear();
+    this.chart.Series["green"].Points.Clear();
+    this.chart.Series["blue"].Points.Clear();
+    for (int i = 0; i < 256; i++)
+    {
+        this.chart.Series["red"].Points.AddXY(i, red[i]);
+        this.chart.Series["green"].Points.AddXY(i, green[i]);
+        this.chart.Series["blue"].Points.AddXY(i, blue[i]);
+    }
+    this.chart.Invalidate();
+}
+
+// Metoda tworzaca tablice LUT dla wyrownania
+private int[] calculateLUT(int[] values, int size)
+{
+    double minValue = 0;
+    for (int i = 0; i < 256; i++)
+    {
+        if (values[i] != 0)
+        {
+            minValue = values[i];
+            break;
+        }
+    }
+
+    int[] result = new int[256];
+    double sum = 0;
+    for (int i = 0; i < 256; i++)
+    {
+        sum += values[i];
+        result[i] = (int)(((sum - minValue) / (size - minValue)) * 255.0);
+    }
+
+    return result;
+}
+
+// *** Lab 6 *** - Wyrownaj histogram
+private void button3_Click(object sender, EventArgs e)
+{
+    Bitmap b1 = (Bitmap)pictureBox1.Image;
+
+    int[] LUTred = calculateLUT(red, width * height);
+    int[] LUTgreen = calculateLUT(green, width * height);
+    int[] LUTblue = calculateLUT(blue, width * height);
+
+    red = new int[256];
+    green = new int[256];
+    blue = new int[256];
+
+    Bitmap oryginal = (Bitmap)pictureBox1.Image;
+    Bitmap wyrownany = new Bitmap(oryginal.Width, oryginal.Height, PixelFormat.Format24bppRgb);
+    for (int x = 0; x < width; x++)
+    {
+        for (int y = 0; y < height; y++)
+        {
+            Color pixel = oryginal.GetPixel(x, y);
+            Color newPixel = Color.FromArgb(LUTred[pixel.R], LUTgreen[pixel.G], LUTblue[pixel.B]);
+            wyrownany.SetPixel(x, y, newPixel);
+            red[newPixel.R]++;
+            green[newPixel.G]++;
+            blue[newPixel.B]++;
+        }
+    }
+    pictureBox1.Image = wyrownany;
+
+    this.chart.Visible = true;
+
+    this.chart.Series["red"].Points.Clear();
+    this.chart.Series["green"].Points.Clear();
+    this.chart.Series["blue"].Points.Clear();
+    for (int i = 0; i < 256; i++)
+    {
+        this.chart.Series["red"].Points.AddXY(i, red[i]);
+        this.chart.Series["green"].Points.AddXY(i, green[i]);
+        this.chart.Series["blue"].Points.AddXY(i, blue[i]);
+    }
+    this.chart.Invalidate();
+}
+
+// On / off histogram
+private void button6_Click(object sender, EventArgs e)
+{
+    if (this.chart.Visible == false) this.chart.Visible = true;
+    else this.chart.Visible = false;
+}
+
+// Metoda tworzaca tablice LUT dla skalowania
+private int[] calculateLUTskalowanie(int[] values)
+{
+    //poszukaj wartości minimalnej
+    int minValue = 0;
+    for (int i = 0; i < 256; i++)
+    {
+        if (values[i] != 0)
+        {
+            minValue = i;
+            break;
+        }
+    }
+
+    //poszukaj wartości maksymalnej
+    int maxValue = 255;
+    for (int i = 255; i >= 0; i--)
+    {
+        if (values[i] != 0)
+        {
+            maxValue = i;
+            break;
+        }
+    }
+
+    //przygotuj tablice zgodnie ze wzorem
+    int[] result = new int[256];
+    double a = 255.0 / (maxValue - minValue);
+    for (int i = 0; i < 256; i++)
+    {
+        result[i] = (int)(a * (i - minValue));
+    }
+
+    return result;
+}
+
+// *** Lab 6 *** - Skaluj histogram
+private void button8_Click(object sender, EventArgs e)
+{
+    Bitmap b1 = (Bitmap)pictureBox1.Image;
+
+    int[] LUTred = calculateLUTskalowanie(red);
+    int[] LUTgreen = calculateLUTskalowanie(green);
+    int[] LUTblue = calculateLUTskalowanie(blue);
+
+    red = new int[256];
+    green = new int[256];
+    blue = new int[256];
+
+    Bitmap oryginal = (Bitmap)pictureBox1.Image;
+    Bitmap skalowany = new Bitmap(oryginal.Width, oryginal.Height, PixelFormat.Format24bppRgb);
+    for (int x = 0; x < width; x++)
+    {
+        for (int y = 0; y < height; y++)
+        {
+            Color pixel = oryginal.GetPixel(x, y);
+            Color newPixel = Color.FromArgb(LUTred[pixel.R], LUTgreen[pixel.G], LUTblue[pixel.B]);
+            skalowany.SetPixel(x, y, newPixel);
+            red[newPixel.R]++;
+            green[newPixel.G]++;
+            blue[newPixel.B]++;
+        }
+    }
+    pictureBox1.Image = skalowany;
+
+    this.chart.Visible = true;
+
+    chart.Series["red"].Points.Clear();
+    chart.Series["green"].Points.Clear();
+    chart.Series["blue"].Points.Clear();
+    for (int i = 0; i < 256; i++)
+    {
+        chart.Series["red"].Points.AddXY(i, red[i]);
+        chart.Series["green"].Points.AddXY(i, green[i]);
+        chart.Series["blue"].Points.AddXY(i, blue[i]);
+    }
+    chart.Invalidate();
+}

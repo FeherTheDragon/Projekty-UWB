@@ -1,0 +1,935 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace zajecia3a
+{
+    public partial class Form1 : Form
+    {
+        private int width = 0;
+        private int height = 0;
+        private int poziomJasnCiem = 0;
+        private Image temp;
+
+        private int[] red = new int[256];
+        private int[] green = new int[256];
+        private int[] blue = new int[256];
+
+        public Form1()
+        {
+            InitializeComponent();
+
+            // Dodanie trybow mieszania do listy trybow mieszania
+            comboBox1.Items.Add("Suma");
+            comboBox1.Items.Add("Odejmowanie");
+            comboBox1.Items.Add("Różnica");
+            comboBox1.Items.Add("Mnożenie");
+            comboBox1.Items.Add("Mnożenie Odwrotności");
+            comboBox1.Items.Add("Negacja");
+            comboBox1.Items.Add("Ciemniejsze");
+            comboBox1.Items.Add("Jaśniejsze");
+            comboBox1.Items.Add("Wyłączenie");
+            comboBox1.Items.Add("Nakładka");
+            comboBox1.Items.Add("Ostre Światło");
+            comboBox1.Items.Add("Łagodne Światło");
+            comboBox1.Items.Add("Rozcieńczenie");
+            comboBox1.Items.Add("Wypalanie");
+            comboBox1.Items.Add("Odbicie");
+
+            // Dodanie trybow do filtrow
+            // Lab 7
+            comboBox2.Items.Add("Rozmywający Uśredniający");
+            comboBox2.Items.Add("Rozmywający Gauss'a");
+            comboBox2.Items.Add("Wyostrzający Roberts'a");
+            comboBox2.Items.Add("Wyostrzający Prewitt'a");
+            comboBox2.Items.Add("Wyostrzający Sobel'a");
+            // Lab 8
+            comboBox2.Items.Add("Wyostrzający Laplace'a");
+            comboBox2.Items.Add("Statystyczny Minimalny");
+            comboBox2.Items.Add("Statystyczny Maksymalny");
+            comboBox2.Items.Add("Statystyczny Medianowy");
+        }
+
+        // Zaladowanie pliku
+        private void buttonOdczyt_Click(object sender, EventArgs e)
+        {
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                pictureBox1.Load(openFileDialog1.FileName);
+
+                width = pictureBox1.Image.Width;
+                height = pictureBox1.Image.Height;
+
+                if (temp == null) pictureBox2.Image = new Bitmap(width, height);
+                else pictureBox2.Image = temp;
+
+                if (pictureBox1.Image.Width != pictureBox2.Image.Width && pictureBox1.Image.Height != pictureBox2.Image.Height) aktywacja_przyciskow(false);
+                else aktywacja_przyciskow(true);
+            }
+        }
+
+        // Funkcja do aktywacji / dezaktywacji przyciskow
+        private void aktywacja_przyciskow(Boolean wykonaj)
+        {
+            button4.Enabled = wykonaj; // Zamien Strony
+            button5.Enabled = wykonaj; // Negatyw
+            //button7 to exit
+            comboBox1.Enabled = wykonaj; // Tryby mieszania
+            trackBar1.Enabled = wykonaj; // Poziom jasnosci
+            trackBar2.Enabled = wykonaj; // Przezroczystosc
+            numericUpDown1.Enabled = wykonaj; // Gamma
+            numericUpDown2.Enabled = wykonaj; // kontrast
+            button2.Enabled = wykonaj; // Histogram
+            button3.Enabled = wykonaj; // Wyrownaj histogram
+            button6.Enabled = wykonaj; // on / off histogram
+            button8.Enabled = wykonaj; // skaluj histogram
+            comboBox2.Enabled = wykonaj; // Filtry
+        }
+
+        // Zamiana obrazkow stronami
+        private void button4_Click(object sender, EventArgs e)
+        {
+            temp = pictureBox2.Image;
+            pictureBox2.Image = pictureBox1.Image;
+            pictureBox1.Image = temp;
+            temp = pictureBox2.Image;
+        }
+
+        // *** Lab 3 *** - Negatyw
+        private void button5_Click(object sender, EventArgs e)
+        {
+            Bitmap b1 = (Bitmap)pictureBox1.Image;
+            Bitmap b2 = (Bitmap)pictureBox2.Image;
+
+            Color k;
+            int r, g, b;
+
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    k = b1.GetPixel(x, y);
+                    r = 255 - k.R;
+                    g = 255 - k.G;
+                    b = 255 - k.B;
+
+                    k = Color.FromArgb(r, g, b);
+
+                    b2.SetPixel(x, y, k);
+                }
+            }
+
+            pictureBox2.Refresh();
+        }
+
+        // *** Lab 3 *** - Poziom Jasnosci
+        private void trackBar1_ValueChanged(object sender, EventArgs e)
+        {
+            poziomJasnCiem = trackBar1.Value;
+
+            Bitmap b1 = (Bitmap)pictureBox1.Image;
+            Bitmap b2 = (Bitmap)pictureBox2.Image;
+
+            Color k;
+            int r, g, b;
+
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    k = b1.GetPixel(x, y);
+
+                    if (poziomJasnCiem + k.R > 255) r = 255;
+                    else if (poziomJasnCiem + k.R < 0) r = 0;
+                    else r = poziomJasnCiem + k.R;
+
+                    if (poziomJasnCiem + k.G > 255) g = 255;
+                    else if (poziomJasnCiem + k.G < 0) g = 0;
+                    else g = poziomJasnCiem + k.G;
+
+                    if (poziomJasnCiem + k.B > 255) b = 255;
+                    else if (poziomJasnCiem + k.B < 0) b = 0;
+                    else b = poziomJasnCiem + k.B;
+
+                    k = Color.FromArgb(r, g, b);
+
+                    b2.SetPixel(x, y, k);
+                }
+            }
+
+            pictureBox2.Refresh();
+        }
+
+        // Wylaczenie Programu
+        private void button7_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        // *** Lab 4 *** - Tryby Mieszania
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Bitmap b1 = (Bitmap)pictureBox1.Image;
+            Bitmap b2 = (Bitmap)pictureBox2.Image;
+
+            Color k, k1, k2;
+            int r, g, b;
+
+            for (int x = 0; x < width; x++){
+                for (int y = 0; y < height; y++){
+                    k1 = b1.GetPixel(x, y);
+                    k2 = b2.GetPixel(x, y);
+
+                    if (comboBox1.Text == "Suma")
+                    {
+                        if (k1.R + k2.R > 255) r = 255;
+                        else r = k1.R + k2.R;
+
+                        if (k1.G + k2.G > 255) g = 255;
+                        else g = k1.G + k2.G;
+
+                        if (k1.B + k2.B > 255) b = 255;
+                        else b = k1.B + k2.B;
+
+                        k = Color.FromArgb(r, g, b);
+                        b2.SetPixel(x, y, k);
+                    }
+                    else if (comboBox1.Text == "Odejmowanie")
+                    {
+                        if (k1.R - k2.R < 0) r = 0;
+                        else r = k1.R - k2.R;
+
+                        if (k1.G - k2.G < 0) g = 0;
+                        else g = k1.G - k2.G;
+
+                        if (k1.B - k2.B < 0) b = 0;
+                        else b = k1.B - k2.B;
+
+                        k = Color.FromArgb(r, g, b);
+                        b2.SetPixel(x, y, k);
+                    }
+                    else if (comboBox1.Text == "Różnica")
+                    {
+                        r = k1.R - k2.R;
+                        if (r < 0) r *= -1;
+
+                        g = k1.G - k2.G;
+                        if (g < 0) g *= -1;
+
+                        b = k1.B - k2.B;
+                        if (b < 0) b *= -1;
+
+                        k = Color.FromArgb(r, g, b);
+                        b2.SetPixel(x, y, k);
+                    }
+                    else if (comboBox1.Text == "Mnożenie")
+                    {
+                        r = k1.R * k2.R / 255;
+
+                        g = k1.G * k2.G / 255;
+
+                        b = k1.B * k2.B / 255;
+
+                        k = Color.FromArgb(r, g, b);
+                        b2.SetPixel(x, y, k);
+                    }
+                    else if (comboBox1.Text == "Mnożenie Odwrotności")
+                    {
+                        r = 255 - (((255 - k1.R) * (255 - k2.R)) / 255);
+                        if (r > 255) r = 255;
+                        if (r < 0) r = 0;
+
+                        g = 255 - (((255 - k1.G) * (255 - k2.G)) / 255);
+                        if (g > 255) g = 255;
+                        if (g < 0) g = 0;
+
+                        b = 255 - (((255 - k1.B) * (255 - k2.B)) / 255);
+                        if (b > 255) b = 255;
+                        if (b < 0) b = 0;
+
+                        k = Color.FromArgb(r, g, b);
+                        b2.SetPixel(x, y, k);
+                    }
+                    else if (comboBox1.Text == "Negacja")
+                    {
+                        r = 255 - k1.R - k2.R;
+                        if (r < 0) r *= -1;
+                        r = 255 - r;
+
+                        g = 255 - k1.G - k2.G;
+                        if (g < 0) g *= -1;
+                        g = 255 - g;
+
+                        b = 255 - k1.B - k2.B;
+                        if (b < 0) b *= -1;
+                        b = 255 - b;
+
+                        k = Color.FromArgb(r, g, b);
+                        b2.SetPixel(x, y, k);
+                    }
+                    else if (comboBox1.Text == "Ciemniejsze")
+                    {
+                        if (k1.R < k2.R) r = k1.R;
+                        else r = k2.R;
+
+                        if (k1.G < k2.G) g = k1.G;
+                        else g = k2.G;
+
+                        if (k1.B < k2.B) b = k1.B;
+                        else b = k2.B;
+
+                        k = Color.FromArgb(r, g, b);
+                        b2.SetPixel(x, y, k);
+                    }
+                    else if (comboBox1.Text == "Jaśniejsze")
+                    {
+                        if (k1.R > k2.R) r = k1.R;
+                        else r = k2.R;
+
+                        if (k1.G > k2.G) g = k1.G;
+                        else g = k2.G;
+
+                        if (k1.B > k2.B) b = k1.B;
+                        else b = k2.B;
+
+                        k = Color.FromArgb(r, g, b);
+                        b2.SetPixel(x, y, k);
+                    }
+                    else if (comboBox1.Text == "Wyłączenie")
+                    {
+                        r = k1.R + k2.R - (2 * k1.R * k2.R) / 255;
+                        if (r < 0) r *= -1;
+
+                        g = k1.G + k2.G - (2 * k1.G * k2.G) / 255;
+                        if (g < 0) g *= -1;
+
+                        b = k1.B + k2.B - (2 * k1.B * k2.B) / 255;
+                        if (b < 0) b *= -1;
+
+                        k = Color.FromArgb(r, g, b);
+                        b2.SetPixel(x, y, k);
+                    }
+                    else if (comboBox1.Text == "Nakładka")
+                    {
+                        if (k1.R < 128) r = (2 * k1.R * k2.R) / 255;
+                        else r = 255 - (2 * (255 - k1.R) * (255 - k2.R)) / 255;
+                        if (r < 0) r *= -1;
+
+                        if (k1.G < 128) g = (2 * k1.G * k2.G) / 255;
+                        else g = 255 - (2 * (255 - k1.G) * (255 - k2.G)) / 255;
+                        if (g < 0) g *= -1;
+
+                        if (k1.B < 128) b = (2 * k1.B * k2.B) / 255;
+                        else b = 255 - (2 * (255 - k1.B) * (255 - k2.B)) / 255;
+                        if (b < 0) b *= -1;
+
+                        k = Color.FromArgb(r, g, b);
+                        b2.SetPixel(x, y, k);
+                    }
+                    else if (comboBox1.Text == "Ostre Światło")
+                    {
+                        if (k2.R < 0) r = (2 * k1.R * k2.R) / 255;
+                        else r = 255 - (2 * (255 - k1.R) * (255 - k2.R)) / 255;
+                        if (r < 0) r *= -1;
+
+                        if (k2.G < 0) g = (2 * k1.G * k2.G) / 255;
+                        else g = 255 - (2 * (255 - k1.G) * (255 - k2.G)) / 255;
+                        if (g < 0) g *= -1;
+
+                        if (k2.B < 0) b = (2 * k1.B * k2.B) / 255;
+                        else b = 255 - (2 * (255 - k1.B) * (255 - k2.B)) / 255;
+                        if (b < 0) b *= -1;
+
+                        k = Color.FromArgb(r, g, b);
+                        b2.SetPixel(x, y, k);
+                    }
+                    else if (comboBox1.Text == "Łagodne Światło")
+                    {
+                        if (k2.R < 0.5) r = ((2 * k1.R * k2.R) / 255) + ((((k1.R * k1.R) / 255) * (255 - (k2.R * k2.R) / 255)) / 255);
+                        else r = ((k1.R * (((k2.R * 2) / 255) - 1)) / 255) + ((((k1.R * 2) / 255) * (255 - k2.R)) / 255);
+                        if (r < 0) r *= -1;
+
+                        if (k2.G < 0.5) g = ((2 * k1.G * k2.G) / 255) + ((((k1.G * k1.G) / 255) * (255 - (k2.G * k2.G) / 255)) / 255);
+                        else g = ((k1.G * (((k2.G * 2) / 255) - 1)) / 255) + ((((k1.G * 2) / 255) * (255 - k2.G)) / 255);
+                        if (g < 0) g *= -1;
+
+                        if (k2.B < 0.5) b = ((2 * k1.B * k2.B) / 255) + ((((k1.B * k1.B) / 255) * (255 - (k2.B * k2.B) / 255)) / 255);
+                        else b = ((k1.B * (((k2.B * 2) / 255) - 1)) / 255) + ((((k1.B * 2) / 255) * (255 - k2.B)) / 255);
+                        if (b < 0) b *= -1;
+
+                        k = Color.FromArgb(r, g, b);
+                        b2.SetPixel(x, y, k);
+                    }
+                    else if (comboBox1.Text == "Rozcieńczenie")
+                    {
+                        if (k2.R == 0) r = 255;
+                        else r = (k1.R * 255 / (255 - k2.R));
+                        if (r < 0) r = 0; if (r > 255) r = 255;
+
+                        if (k2.G == 0) g = 255;
+                        else g = (k1.G * 255 / (255 - k2.G));
+                        if (g < 0) g = 0; if (g > 255) g = 255;
+
+                        if (k2.B == 0) b = 255;
+                        else b = (k1.B * 255 / (255 - k2.B));
+                        if (b < 0) b = 0; if (b > 255) b = 255;
+
+                        k = Color.FromArgb(r, g, b);
+                        b2.SetPixel(x, y, k);
+                    }
+                    else if (comboBox1.Text == "Wypalanie")
+                    {
+                        if (k2.R == 0) r = 255;
+                        else r = (255 - (((255 - k1.R) * 255) / k2.R));
+                        if (r < 0) r = 0; if (r > 255) r = 255;
+
+                        if (k2.G == 0) g = 255;
+                        else g = (255 - (((255 - k1.G) * 255) / k2.G));
+                        if (g < 0) g = 0; if (g > 255) g = 255;
+
+                        if (k2.B == 0) b = 255;
+                        else b = (255 - (((255 - k1.B) * 255) / k2.B));
+                        if (b < 0) b = 0; if (b > 255) b = 255;
+
+                        k = Color.FromArgb(r, g, b);
+                        b2.SetPixel(x, y, k);
+                    }
+                    else if (comboBox1.Text == "Odbicie")
+                    {
+                        if (255 - k2.R == 0) r = 0;
+                        else r = (k1.R * k1.R) / (255 - k2.R);
+                        if (r > 255) r = 255;
+
+                        if (255 - k2.G == 0) g = 0;
+                        else g = (k1.G * k1.G) / (255 - k2.G);
+                        if (g > 255) g = 255;
+
+                        if (255 - k2.G == 0) b = 0;
+                        else b = (k1.B * k1.B) / (255 - k2.B);
+                        if (b > 255) b = 255;
+
+                        k = Color.FromArgb(r, g, b);
+                        b2.SetPixel(x, y, k);
+                    }
+                }
+            }
+
+            pictureBox2.Refresh();
+        }
+
+        // *** Lab 4 *** - Przezroczystosc
+        private void trackBar2_Scroll(object sender, EventArgs e)
+        {
+            Bitmap b1 = (Bitmap)pictureBox1.Image;
+            Bitmap b2 = (Bitmap)pictureBox2.Image;
+
+            Color k;
+            int a, r, g, b;
+
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    k = b1.GetPixel(x, y);
+
+                    r = k.R;
+                    g = k.G;
+                    b = k.B;
+                    a = trackBar2.Value;
+
+                    k = Color.FromArgb(a, r, g, b);
+
+                    b2.SetPixel(x, y, k);
+                }
+            }
+
+            pictureBox2.Refresh();
+        }
+
+        // *** Lab 5 *** - Ustawienie Gammy
+        private void numericUpDown1_ValueChanged(object sender, EventArgs e)
+        {
+            decimal gamma = numericUpDown1.Value;
+
+            Bitmap b1 = (Bitmap)pictureBox1.Image;
+            Bitmap b2 = (Bitmap)pictureBox2.Image;
+
+            Color k;
+            int r, g, b;
+
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    k = b1.GetPixel(x, y);
+
+                    r = (int)(255 * Math.Pow(k.R / 255.0, 1.0 / (double)gamma));
+                    g = (int)(255 * Math.Pow(k.G / 255.0, 1.0 / (double)gamma));
+                    b = (int)(255 * Math.Pow(k.B / 255.0, 1.0 / (double)gamma));
+
+                    k = Color.FromArgb(r, g, b);
+
+                    b2.SetPixel(x, y, k);
+                }
+            }
+
+            pictureBox2.Refresh();
+        }
+
+        // *** Lab 5 *** - Ustawienie Kontrastu
+        private void numericUpDown2_ValueChanged(object sender, EventArgs e)
+        {
+            decimal treshold = numericUpDown2.Value;
+            double contrast = Math.Pow((100.0 + (int)treshold) / 100, 2);
+
+            Bitmap b1 = (Bitmap)pictureBox1.Image;
+            Bitmap b2 = (Bitmap)pictureBox2.Image;
+
+            Color k;
+            int r, g, b;
+
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    k = b1.GetPixel(x, y);
+
+                    r = (int)(((((k.R / 255.0) - 0.5) * contrast) + 0.5) * 255.0);
+                    if (r > 255) r = 255; if (r < 0) r = 0;
+                    g = (int)(((((k.G / 255.0) - 0.5) * contrast) + 0.5) * 255.0);
+                    if (g > 255) g = 255; if (g < 0) g = 0;
+                    b = (int)(((((k.B / 255.0) - 0.5) * contrast) + 0.5) * 255.0);
+                    if (b > 255) b = 255; if (b < 0) b = 0;
+
+                    k = Color.FromArgb(r, g, b);
+
+                    b2.SetPixel(x, y, k);
+                }
+            }
+
+            pictureBox2.Refresh();
+        }
+
+        // Przycisk do Usuniecie Prawego Obrazka
+        private void button1_Click(object sender, EventArgs e)
+        {
+            pictureBox2.Image = new Bitmap(width, height);
+            aktywacja_przyciskow(true);
+        }
+
+        // *** Lab 6 *** - Histogram
+        private void button2_Click(object sender, EventArgs e)
+        {
+            Bitmap b1 = (Bitmap)pictureBox1.Image;
+
+            red = new int[256];
+            green = new int[256];
+            blue = new int[256];
+
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    Color pixel = ((Bitmap)pictureBox1.Image).GetPixel(x, y);
+                    red[pixel.R]++;
+                    green[pixel.G]++;
+                    blue[pixel.B]++;
+                }
+            }
+
+            this.chart.Visible = true;
+
+            this.chart.Series["red"].Points.Clear();
+            this.chart.Series["green"].Points.Clear();
+            this.chart.Series["blue"].Points.Clear();
+            for (int i = 0; i < 256; i++)
+            {
+                this.chart.Series["red"].Points.AddXY(i, red[i]);
+                this.chart.Series["green"].Points.AddXY(i, green[i]);
+                this.chart.Series["blue"].Points.AddXY(i, blue[i]);
+            }
+            this.chart.Invalidate();
+        }
+
+        // Metoda tworzaca tablice LUT dla wyrownania
+        private int[] calculateLUT(int[] values, int size)
+        {
+            double minValue = 0;
+            for (int i = 0; i < 256; i++)
+            {
+                if (values[i] != 0)
+                {
+                    minValue = values[i];
+                    break;
+                }
+            }
+
+            int[] result = new int[256];
+            double sum = 0;
+            for (int i = 0; i < 256; i++)
+            {
+                sum += values[i];
+                result[i] = (int)(((sum - minValue) / (size - minValue)) * 255.0);
+            }
+
+            return result;
+        }
+
+        // *** Lab 6 *** - Wyrownaj histogram
+        private void button3_Click(object sender, EventArgs e)
+        {
+            Bitmap b1 = (Bitmap)pictureBox1.Image;
+
+            int[] LUTred = calculateLUT(red, width * height);
+            int[] LUTgreen = calculateLUT(green, width * height);
+            int[] LUTblue = calculateLUT(blue, width * height);
+
+            red = new int[256];
+            green = new int[256];
+            blue = new int[256];
+
+            Bitmap oryginal = (Bitmap)pictureBox1.Image;
+            Bitmap wyrownany = new Bitmap(oryginal.Width, oryginal.Height, PixelFormat.Format24bppRgb);
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    Color pixel = oryginal.GetPixel(x, y);
+                    Color newPixel = Color.FromArgb(LUTred[pixel.R], LUTgreen[pixel.G], LUTblue[pixel.B]);
+                    wyrownany.SetPixel(x, y, newPixel);
+                    red[newPixel.R]++;
+                    green[newPixel.G]++;
+                    blue[newPixel.B]++;
+                }
+            }
+            pictureBox1.Image = wyrownany;
+
+            this.chart.Visible = true;
+
+            this.chart.Series["red"].Points.Clear();
+            this.chart.Series["green"].Points.Clear();
+            this.chart.Series["blue"].Points.Clear();
+            for (int i = 0; i < 256; i++)
+            {
+                this.chart.Series["red"].Points.AddXY(i, red[i]);
+                this.chart.Series["green"].Points.AddXY(i, green[i]);
+                this.chart.Series["blue"].Points.AddXY(i, blue[i]);
+            }
+            this.chart.Invalidate();
+        }
+
+        // On / off histogram
+        private void button6_Click(object sender, EventArgs e)
+        {
+            if (this.chart.Visible == false) this.chart.Visible = true;
+            else this.chart.Visible = false;
+        }
+
+        // Metoda tworzaca tablice LUT dla skalowania
+        private int[] calculateLUTskalowanie(int[] values)
+        {
+            //poszukaj wartości minimalnej
+            int minValue = 0;
+            for (int i = 0; i < 256; i++)
+            {
+                if (values[i] != 0)
+                {
+                    minValue = i;
+                    break;
+                }
+            }
+
+            //poszukaj wartości maksymalnej
+            int maxValue = 255;
+            for (int i = 255; i >= 0; i--)
+            {
+                if (values[i] != 0)
+                {
+                    maxValue = i;
+                    break;
+                }
+            }
+
+            //przygotuj tablice zgodnie ze wzorem
+            int[] result = new int[256];
+            double a = 255.0 / (maxValue - minValue);
+            for (int i = 0; i < 256; i++)
+            {
+                result[i] = (int)(a * (i - minValue));
+            }
+
+            return result;
+        }
+
+        // *** Lab 6 *** - Skaluj histogram
+        private void button8_Click(object sender, EventArgs e)
+        {
+            Bitmap b1 = (Bitmap)pictureBox1.Image;
+
+            int[] LUTred = calculateLUTskalowanie(red);
+            int[] LUTgreen = calculateLUTskalowanie(green);
+            int[] LUTblue = calculateLUTskalowanie(blue);
+
+            red = new int[256];
+            green = new int[256];
+            blue = new int[256];
+
+            Bitmap oryginal = (Bitmap)pictureBox1.Image;
+            Bitmap skalowany = new Bitmap(oryginal.Width, oryginal.Height, PixelFormat.Format24bppRgb);
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    Color pixel = oryginal.GetPixel(x, y);
+                    Color newPixel = Color.FromArgb(LUTred[pixel.R], LUTgreen[pixel.G], LUTblue[pixel.B]);
+                    skalowany.SetPixel(x, y, newPixel);
+                    red[newPixel.R]++;
+                    green[newPixel.G]++;
+                    blue[newPixel.B]++;
+                }
+            }
+            pictureBox1.Image = skalowany;
+
+            this.chart.Visible = true;
+
+            chart.Series["red"].Points.Clear();
+            chart.Series["green"].Points.Clear();
+            chart.Series["blue"].Points.Clear();
+            for (int i = 0; i < 256; i++)
+            {
+                chart.Series["red"].Points.AddXY(i, red[i]);
+                chart.Series["green"].Points.AddXY(i, green[i]);
+                chart.Series["blue"].Points.AddXY(i, blue[i]);
+            }
+            chart.Invalidate();
+        }
+
+        // Funkcja do uzycia filtra
+        private void uzyj_filtra(int[] maska)
+        {
+            Bitmap b1 = (Bitmap)pictureBox1.Image;
+            Bitmap b2 = (Bitmap)pictureBox2.Image;
+
+            Color k, k1, k2, k3, k4, k5, k6, k7, k8, k9;
+            int r, g, b, suma_maski = 0;
+
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    //warunek dla k1 (lewy gorny rog piksela)
+                    if (x - 1 == -1 || y - 1 == -1) k1 = Color.FromArgb(0, 0, 0);
+                    else k1 = b1.GetPixel(x - 1, y - 1);
+                    //warunek dla k2 (nad pikselem)
+                    if (x - 1 == -1) k2 = Color.FromArgb(0, 0, 0);
+                    else k2 = b1.GetPixel(x - 1, y);
+                    //warunek dla k3 (prawy gorny rog piksela)
+                    if (x - 1 == -1 || y + 1 == height) k3 = Color.FromArgb(0, 0, 0);
+                    else k3 = b1.GetPixel(x - 1, y + 1);
+                    //warunek dla k4 (lewy bok piksela)
+                    if (y - 1 == -1) k4 = Color.FromArgb(0, 0, 0);
+                    else k4 = b1.GetPixel(x, y - 1);
+                    //warunek dla k5 (piksel srodkowy)
+                    k5 = b1.GetPixel(x, y);
+                    //warunek dla k6 (prawy bok piksela)
+                    if (y + 1 == height) k6 = Color.FromArgb(0, 0, 0);
+                    else k6 = b1.GetPixel(x, y + 1);
+                    //warunek dla k7 (lewy dolny rog piksela)
+                    if (x + 1 == width || y - 1 == -1) k7 = Color.FromArgb(0, 0, 0);
+                    else k7 = b1.GetPixel(x + 1, y - 1);
+                    //warunek dla k8 (dol piksela)
+                    if (x + 1 == width) k8 = Color.FromArgb(0, 0, 0);
+                    else k8 = b1.GetPixel(x + 1, y);
+                    //warunek dla k9 (prawy dolny rog piksela)
+                    if (x + 1 == width || y + 1 == height) k9 = Color.FromArgb(0, 0, 0);
+                    else k9 = b1.GetPixel(x + 1, y + 1);
+
+                    r = (k1.R * maska[1]) + (k2.R * maska[1]) + (k3.R * maska[2]) + (k4.R * maska[3]) + (k5.R * maska[4]) + (k6.R * maska[5]) + (k7.R * maska[6]) + (k8.R * maska[7]) + (k9.R * maska[8]);
+                    g = (k1.G * maska[1]) + (k2.G * maska[1]) + (k3.G * maska[2]) + (k4.G * maska[3]) + (k5.G * maska[4]) + (k6.G * maska[5]) + (k7.G * maska[6]) + (k8.G * maska[7]) + (k9.G * maska[8]);
+                    b = (k1.B * maska[1]) + (k2.B * maska[1]) + (k3.B * maska[2]) + (k4.B * maska[3]) + (k5.B * maska[4]) + (k6.B * maska[5]) + (k7.B * maska[6]) + (k8.B * maska[7]) + (k9.B * maska[8]);
+
+                    suma_maski += maska[0] + maska[1] + maska[2] + maska[3] + maska[4] + maska[5] + maska[6] + maska[7] + maska[8];
+
+                    if (suma_maski != 0) r = r / suma_maski;
+                    if (r > 255) r = 255;
+                    if (r < 0) r = 0;
+
+                    if (suma_maski != 0) g = g / suma_maski;
+                    if (g > 255) g = 255;
+                    if (g < 0) g = 0;
+
+                    if (suma_maski != 0) b = b / suma_maski;
+                    if (b > 255) b = 255;
+                    if (b < 0) b = 0;
+
+                    k = Color.FromArgb(r, g, b);
+                    b2.SetPixel(x, y, k);
+
+                    suma_maski = 0;
+                }
+            }
+
+            pictureBox2.Refresh();
+        }
+
+        // *** Lab 7-8 *** - Filtry
+        private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            int[] maska;
+
+            if (comboBox2.Text == "Rozmywający Uśredniający")
+            {
+                maska = new int[] {1, 1, 1,
+                                   1, 1, 1, 
+                                   1, 1, 1};
+                uzyj_filtra(maska);
+            }
+            else if (comboBox2.Text == "Rozmywający Gauss'a")
+            {
+                maska = new int[] {1, 2, 1,
+                                   2, 4, 2, 
+                                   1, 2, 1};
+                uzyj_filtra(maska);
+            }
+            else if (comboBox2.Text == "Wyostrzający Roberts'a")
+            {
+                maska = new int[] {0, 0, 0,
+                                   0, 1, -1, 
+                                   0, 0, 0};
+                uzyj_filtra(maska);
+            }
+            else if (comboBox2.Text == "Wyostrzający Prewitt'a")
+            {
+                maska = new int[] {1, 0, -1,
+                                   1, 0, -1, 
+                                   1, 0, -1};
+                uzyj_filtra(maska);
+            }
+            else if (comboBox2.Text == "Wyostrzający Sobel'a")
+            {
+                maska = new int[] {1, 0, -1,
+                                   2, 0, -2, 
+                                   1, 0, -1};
+                uzyj_filtra(maska);
+            }
+            else if (comboBox2.Text == "Wyostrzający Laplace'a")
+            {
+                maska = new int[] {-1, -1, -1,
+                                   -1, 8, -1, 
+                                   -1, -1, -1};
+                uzyj_filtra(maska);
+            }
+            else if (comboBox2.Text == "Statystyczny Minimalny")
+            {
+                uzyj_filtra_statystycznego("min");
+            }
+            else if (comboBox2.Text == "Statystyczny Maksymalny")
+            {
+                uzyj_filtra_statystycznego("max");
+            }
+            else if (comboBox2.Text == "Statystyczny Medianowy")
+            {
+                uzyj_filtra_statystycznego("med");
+            }
+        }
+
+        // Funkcja do uzycia filtrow statystycznych
+        private void uzyj_filtra_statystycznego(string polecenie)
+        {
+            Bitmap b1 = (Bitmap)pictureBox1.Image;
+            Bitmap b2 = (Bitmap)pictureBox2.Image;
+
+            Color k;
+            int tempR, tempG, tempB;
+            Color[] kk = new Color[9];
+            int r, g, b;
+
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    //warunek dla k1 (lewy gorny rog piksela)
+                    if (x - 1 == -1 || y - 1 == -1) kk[0] = Color.FromArgb(0, 0, 0);
+                    else kk[0] = b1.GetPixel(x - 1, y - 1);
+                    //warunek dla k2 (nad pikselem)
+                    if (x - 1 == -1) kk[1] = Color.FromArgb(0, 0, 0);
+                    else kk[1] = b1.GetPixel(x - 1, y);
+                    //warunek dla k3 (prawy gorny rog piksela)
+                    if (x - 1 == -1 || y + 1 == height) kk[2] = Color.FromArgb(0, 0, 0);
+                    else kk[2] = b1.GetPixel(x - 1, y + 1);
+                    //warunek dla k4 (lewy bok piksela)
+                    if (y - 1 == -1) kk[3] = Color.FromArgb(0, 0, 0);
+                    else kk[3] = b1.GetPixel(x, y - 1);
+                    //warunek dla k5 (piksel srodkowy)
+                    kk[4] = b1.GetPixel(x, y);
+                    //warunek dla k6 (prawy bok piksela)
+                    if (y + 1 == height) kk[5] = Color.FromArgb(0, 0, 0);
+                    else kk[5] = b1.GetPixel(x, y + 1);
+                    //warunek dla k7 (lewy dolny rog piksela)
+                    if (x + 1 == width || y - 1 == -1) kk[6] = Color.FromArgb(0, 0, 0);
+                    else kk[6] = b1.GetPixel(x + 1, y - 1);
+                    //warunek dla k8 (dol piksela)
+                    if (x + 1 == width) kk[7] = Color.FromArgb(0, 0, 0);
+                    else kk[7] = b1.GetPixel(x + 1, y);
+                    //warunek dla k9 (prawy dolny rog piksela)
+                    if (x + 1 == width || y + 1 == height) kk[8] = Color.FromArgb(0, 0, 0);
+                    else kk[8] = b1.GetPixel(x + 1, y + 1);
+
+                    tempR = kk[0].R; tempG = kk[0].G; tempB = kk[0].B;
+                    if (polecenie == "max")
+                    {
+                        for (int i = 1; i < 9; i++)
+                        {
+                            if (kk[i].R > tempR) tempR = kk[i].R;
+                            if (kk[i].G > tempG) tempG = kk[i].G;
+                            if (kk[i].B > tempB) tempB = kk[i].B;
+                        }
+                    }
+                    else if (polecenie == "min")
+                    {
+                        for (int i = 1; i < 9; i++)
+                        {
+                            if (kk[i].R < tempR) tempR = kk[i].R;
+                            if (kk[i].G < tempG) tempG = kk[i].G;
+                            if (kk[i].B < tempB) tempB = kk[i].B;
+                        }
+                    }
+                    else
+                    {
+                        List<int> red = new List<int>();
+                        List<int> green = new List<int>();
+                        List<int> blue = new List<int>();
+
+                        for (int i = 0; i < 9; i++)
+                        {
+                            red.Add(kk[i].R);
+                            green.Add(kk[i].G);
+                            blue.Add(kk[i].B);
+                        }
+
+                        red.Sort();
+                        green.Sort();
+                        blue.Sort();
+
+                        tempR = red[4];
+                        tempG = green[4];
+                        tempB = blue[4];
+                    }
+
+
+                    k = Color.FromArgb(tempR, tempG, tempB);
+                    b2.SetPixel(x, y, k);
+                }
+            }
+
+            pictureBox2.Refresh();
+        }
+    }
+}

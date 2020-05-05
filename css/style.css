@@ -20,6 +20,7 @@ h1, h2, h3{
     width:30%;
     padding:10px;
     box-shadow:-5px 5px #5c6c80;
+    margin-bottom: 10px;
 }
 
 .menu_li:hover{
@@ -49,4 +50,8 @@ a{
     box-shadow: 5px 5px #2e3640;
     text-align:center;
     width:384px;
+}
+
+p{
+    padding-left: 10px;
 }

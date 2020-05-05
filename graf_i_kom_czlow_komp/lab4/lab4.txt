@@ -1,0 +1,279 @@
+// *** Lab 4 *** - Tryby Mieszania
+private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+{
+    Bitmap b1 = (Bitmap)pictureBox1.Image;
+    Bitmap b2 = (Bitmap)pictureBox2.Image;
+
+    Color k, k1, k2;
+    int r, g, b;
+
+    for (int x = 0; x < width; x++){
+        for (int y = 0; y < height; y++){
+            k1 = b1.GetPixel(x, y);
+            k2 = b2.GetPixel(x, y);
+
+            if (comboBox1.Text == "Suma")
+            {
+                if (k1.R + k2.R > 255) r = 255;
+                else r = k1.R + k2.R;
+
+                if (k1.G + k2.G > 255) g = 255;
+                else g = k1.G + k2.G;
+
+                if (k1.B + k2.B > 255) b = 255;
+                else b = k1.B + k2.B;
+
+                k = Color.FromArgb(r, g, b);
+                b2.SetPixel(x, y, k);
+            }
+            else if (comboBox1.Text == "Odejmowanie")
+            {
+                if (k1.R - k2.R < 0) r = 0;
+                else r = k1.R - k2.R;
+
+                if (k1.G - k2.G < 0) g = 0;
+                else g = k1.G - k2.G;
+
+                if (k1.B - k2.B < 0) b = 0;
+                else b = k1.B - k2.B;
+
+                k = Color.FromArgb(r, g, b);
+                b2.SetPixel(x, y, k);
+            }
+            else if (comboBox1.Text == "Różnica")
+            {
+                r = k1.R - k2.R;
+                if (r < 0) r *= -1;
+
+                g = k1.G - k2.G;
+                if (g < 0) g *= -1;
+
+                b = k1.B - k2.B;
+                if (b < 0) b *= -1;
+
+                k = Color.FromArgb(r, g, b);
+                b2.SetPixel(x, y, k);
+            }
+            else if (comboBox1.Text == "Mnożenie")
+            {
+                r = k1.R * k2.R / 255;
+
+                g = k1.G * k2.G / 255;
+
+                b = k1.B * k2.B / 255;
+
+                k = Color.FromArgb(r, g, b);
+                b2.SetPixel(x, y, k);
+            }
+            else if (comboBox1.Text == "Mnożenie Odwrotności")
+            {
+                r = 255 - (((255 - k1.R) * (255 - k2.R)) / 255);
+                if (r > 255) r = 255;
+                if (r < 0) r = 0;
+
+                g = 255 - (((255 - k1.G) * (255 - k2.G)) / 255);
+                if (g > 255) g = 255;
+                if (g < 0) g = 0;
+
+                b = 255 - (((255 - k1.B) * (255 - k2.B)) / 255);
+                if (b > 255) b = 255;
+                if (b < 0) b = 0;
+
+                k = Color.FromArgb(r, g, b);
+                b2.SetPixel(x, y, k);
+            }
+            else if (comboBox1.Text == "Negacja")
+            {
+                r = 255 - k1.R - k2.R;
+                if (r < 0) r *= -1;
+                r = 255 - r;
+
+                g = 255 - k1.G - k2.G;
+                if (g < 0) g *= -1;
+                g = 255 - g;
+
+                b = 255 - k1.B - k2.B;
+                if (b < 0) b *= -1;
+                b = 255 - b;
+
+                k = Color.FromArgb(r, g, b);
+                b2.SetPixel(x, y, k);
+            }
+            else if (comboBox1.Text == "Ciemniejsze")
+            {
+                if (k1.R < k2.R) r = k1.R;
+                else r = k2.R;
+
+                if (k1.G < k2.G) g = k1.G;
+                else g = k2.G;
+
+                if (k1.B < k2.B) b = k1.B;
+                else b = k2.B;
+
+                k = Color.FromArgb(r, g, b);
+                b2.SetPixel(x, y, k);
+            }
+            else if (comboBox1.Text == "Jaśniejsze")
+            {
+                if (k1.R > k2.R) r = k1.R;
+                else r = k2.R;
+
+                if (k1.G > k2.G) g = k1.G;
+                else g = k2.G;
+
+                if (k1.B > k2.B) b = k1.B;
+                else b = k2.B;
+
+                k = Color.FromArgb(r, g, b);
+                b2.SetPixel(x, y, k);
+            }
+            else if (comboBox1.Text == "Wyłączenie")
+            {
+                r = k1.R + k2.R - (2 * k1.R * k2.R) / 255;
+                if (r < 0) r *= -1;
+
+                g = k1.G + k2.G - (2 * k1.G * k2.G) / 255;
+                if (g < 0) g *= -1;
+
+                b = k1.B + k2.B - (2 * k1.B * k2.B) / 255;
+                if (b < 0) b *= -1;
+
+                k = Color.FromArgb(r, g, b);
+                b2.SetPixel(x, y, k);
+            }
+            else if (comboBox1.Text == "Nakładka")
+            {
+                if (k1.R < 128) r = (2 * k1.R * k2.R) / 255;
+                else r = 255 - (2 * (255 - k1.R) * (255 - k2.R)) / 255;
+                if (r < 0) r *= -1;
+
+                if (k1.G < 128) g = (2 * k1.G * k2.G) / 255;
+                else g = 255 - (2 * (255 - k1.G) * (255 - k2.G)) / 255;
+                if (g < 0) g *= -1;
+
+                if (k1.B < 128) b = (2 * k1.B * k2.B) / 255;
+                else b = 255 - (2 * (255 - k1.B) * (255 - k2.B)) / 255;
+                if (b < 0) b *= -1;
+
+                k = Color.FromArgb(r, g, b);
+                b2.SetPixel(x, y, k);
+            }
+            else if (comboBox1.Text == "Ostre Światło")
+            {
+                if (k2.R < 0) r = (2 * k1.R * k2.R) / 255;
+                else r = 255 - (2 * (255 - k1.R) * (255 - k2.R)) / 255;
+                if (r < 0) r *= -1;
+
+                if (k2.G < 0) g = (2 * k1.G * k2.G) / 255;
+                else g = 255 - (2 * (255 - k1.G) * (255 - k2.G)) / 255;
+                if (g < 0) g *= -1;
+
+                if (k2.B < 0) b = (2 * k1.B * k2.B) / 255;
+                else b = 255 - (2 * (255 - k1.B) * (255 - k2.B)) / 255;
+                if (b < 0) b *= -1;
+
+                k = Color.FromArgb(r, g, b);
+                b2.SetPixel(x, y, k);
+            }
+            else if (comboBox1.Text == "Łagodne Światło")
+            {
+                if (k2.R < 0.5) r = ((2 * k1.R * k2.R) / 255) + ((((k1.R * k1.R) / 255) * (255 - (k2.R * k2.R) / 255)) / 255);
+                else r = ((k1.R * (((k2.R * 2) / 255) - 1)) / 255) + ((((k1.R * 2) / 255) * (255 - k2.R)) / 255);
+                if (r < 0) r *= -1;
+
+                if (k2.G < 0.5) g = ((2 * k1.G * k2.G) / 255) + ((((k1.G * k1.G) / 255) * (255 - (k2.G * k2.G) / 255)) / 255);
+                else g = ((k1.G * (((k2.G * 2) / 255) - 1)) / 255) + ((((k1.G * 2) / 255) * (255 - k2.G)) / 255);
+                if (g < 0) g *= -1;
+
+                if (k2.B < 0.5) b = ((2 * k1.B * k2.B) / 255) + ((((k1.B * k1.B) / 255) * (255 - (k2.B * k2.B) / 255)) / 255);
+                else b = ((k1.B * (((k2.B * 2) / 255) - 1)) / 255) + ((((k1.B * 2) / 255) * (255 - k2.B)) / 255);
+                if (b < 0) b *= -1;
+
+                k = Color.FromArgb(r, g, b);
+                b2.SetPixel(x, y, k);
+            }
+            else if (comboBox1.Text == "Rozcieńczenie")
+            {
+                if (k2.R == 0) r = 255;
+                else r = (k1.R * 255 / (255 - k2.R));
+                if (r < 0) r = 0; if (r > 255) r = 255;
+
+                if (k2.G == 0) g = 255;
+                else g = (k1.G * 255 / (255 - k2.G));
+                if (g < 0) g = 0; if (g > 255) g = 255;
+
+                if (k2.B == 0) b = 255;
+                else b = (k1.B * 255 / (255 - k2.B));
+                if (b < 0) b = 0; if (b > 255) b = 255;
+
+                k = Color.FromArgb(r, g, b);
+                b2.SetPixel(x, y, k);
+            }
+            else if (comboBox1.Text == "Wypalanie")
+            {
+                if (k2.R == 0) r = 255;
+                else r = (255 - (((255 - k1.R) * 255) / k2.R));
+                if (r < 0) r = 0; if (r > 255) r = 255;
+
+                if (k2.G == 0) g = 255;
+                else g = (255 - (((255 - k1.G) * 255) / k2.G));
+                if (g < 0) g = 0; if (g > 255) g = 255;
+
+                if (k2.B == 0) b = 255;
+                else b = (255 - (((255 - k1.B) * 255) / k2.B));
+                if (b < 0) b = 0; if (b > 255) b = 255;
+
+                k = Color.FromArgb(r, g, b);
+                b2.SetPixel(x, y, k);
+            }
+            else if (comboBox1.Text == "Odbicie")
+            {
+                if (255 - k2.R == 0) r = 0;
+                else r = (k1.R * k1.R) / (255 - k2.R);
+                if (r > 255) r = 255;
+
+                if (255 - k2.G == 0) g = 0;
+                else g = (k1.G * k1.G) / (255 - k2.G);
+                if (g > 255) g = 255;
+
+                if (255 - k2.G == 0) b = 0;
+                else b = (k1.B * k1.B) / (255 - k2.B);
+                if (b > 255) b = 255;
+
+                k = Color.FromArgb(r, g, b);
+                b2.SetPixel(x, y, k);
+            }
+        }
+    }
+
+    pictureBox2.Refresh();
+}
+
+// *** Lab 4 *** - Przezroczystosc
+private void trackBar2_Scroll(object sender, EventArgs e)
+{
+    Bitmap b1 = (Bitmap)pictureBox1.Image;
+    Bitmap b2 = (Bitmap)pictureBox2.Image;
+
+    Color k;
+    int a, r, g, b;
+
+    for (int x = 0; x < width; x++)
+    {
+        for (int y = 0; y < height; y++)
+        {
+            k = b1.GetPixel(x, y);
+
+            r = k.R;
+            g = k.G;
+            b = k.B;
+            a = trackBar2.Value;
+
+            k = Color.FromArgb(a, r, g, b);
+
+            b2.SetPixel(x, y, k);
+        }
+    }
+
+    pictureBox2.Refresh();
+}
