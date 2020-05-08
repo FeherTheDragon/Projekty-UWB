@@ -1,0 +1,198 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace gra
+{
+    public partial class Form1 : Form
+    {
+        private List<Figura> fig = new List<Figura>();
+
+        // Zmienne sluzace do dodania kolejnej figury
+        private String dodajFigura;
+        private int dodajX;
+        private int dodajY;
+        private int dodajKierunekX;
+        private int dodajKierunekY;
+        private int dodajPromien;
+        private Color dodajKolor;
+
+        public Form1()
+        {
+            // Zainicjalizowanie defaultowego koloru i figury
+            dodajKolor = Color.Black;
+            dodajFigura = "kulka";
+
+            fig.Add(new Kulka(150, 100, 2, -3, 30, Color.Blue));
+            fig.Add(new Kwadrat(100, 100, -2, 5, 25, Color.Red));
+            fig.Add(new Trojkat(100, 150, -3, -5, 35, Color.Purple));
+
+            InitializeComponent();
+        }
+
+        // Przycisk startu
+        private void button1_Click(object sender, EventArgs e)
+        {
+            timer1.Start();
+        }
+
+        // Przycisk stopu
+        private void button2_Click(object sender, EventArgs e)
+        {
+            timer1.Stop();
+        }
+
+        // Timer do poruszania figurami
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            foreach (Figura f in fig)
+                f.porusz(mojPanel1.Width, mojPanel1.Height);
+            mojPanel1.Invalidate();
+        }
+
+        // Przycisk zamkniecia programu
+        private void button3_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+        // Rysowanie figur na panelu
+        private void mojPanel1_Paint(object sender, PaintEventArgs e)
+        {
+            Graphics g = e.Graphics;
+            foreach (Figura f in fig)
+            {
+                f.rysuj(e.Graphics);
+            }
+        }
+
+        // Przycisk sluzacy do wybrania koloru z palety kolorow
+        private void button5_Click(object sender, EventArgs e)
+        {
+            ColorDialog clrDialog = new ColorDialog();
+
+            if (clrDialog.ShowDialog() == DialogResult.OK)
+            {
+                dodajKolor = clrDialog.Color;
+            }
+        }
+
+        // Przycisk do dodania nowej figury na plansze
+        private void button4_Click(object sender, EventArgs e)
+        {
+            // Pobieranie wartosci z przyciskow
+            dodajX = (int)numericUpDown1.Value;
+            dodajY = (int)numericUpDown2.Value;
+            dodajKierunekX = (int)numericUpDown4.Value;
+            dodajKierunekY = (int)numericUpDown3.Value;
+            dodajPromien = (int)numericUpDown5.Value;
+            if (dodajKolor == null) dodajKolor = Color.Black;
+            if (comboBox1.Text == null) dodajFigura = "kulka";
+            else dodajFigura = comboBox1.Text;
+
+            // Uzycie odpowiedniej klasy do stworzenia wybranej figury
+            switch (dodajFigura)
+            {
+                case "Kulka":
+                    fig.Add(new Kulka(dodajX, dodajY, dodajKierunekX, dodajKierunekY, dodajPromien, dodajKolor));
+                    break;
+                case "Kwadrat":
+                    fig.Add(new Kwadrat(dodajX, dodajY, dodajKierunekX, dodajKierunekY, dodajPromien, dodajKolor));
+                    break;
+                case "Trojkat":
+                    fig.Add(new Trojkat(dodajX, dodajY, dodajKierunekX, dodajKierunekY, dodajPromien, dodajKolor));
+                    break;
+                default:
+                    fig.Add(new Kulka(dodajX, dodajY, dodajKierunekX, dodajKierunekY, dodajPromien, dodajKolor));
+                    break;
+            }
+        }
+    }
+
+    abstract class Figura
+    {
+        protected int x, y, vx, vy, r;
+        protected SolidBrush b;
+
+        public Figura(int ax, int ay, int avx, int avy, int ar, Color ak)
+        {
+            x = ax;
+            y = ay;
+            vx = avx;
+            vy = avy;
+            r = ar;
+            b = new SolidBrush(ak);
+        }
+        abstract public void rysuj(Graphics g);
+
+        public void porusz(int szer, int wys)
+        {
+            x += vx;
+            if (x >= szer - r || x <= r)
+                vx = -vx;
+            y += vy;
+            if (y >= wys - r || y <= r)
+                vy = -vy;
+        }
+    }
+
+    class Kulka : Figura
+    {
+        public Kulka(int ax, int ay, int avx, int avy, int ar, Color ak)
+            : base(ax, ay, avx, avy, ar, ak)
+        {
+        }
+        override
+        public void rysuj(Graphics g)
+        {
+            g.FillEllipse(b, x - r, y - r, 2 * r, 2 * r);
+        }
+    }
+
+    class Kwadrat : Figura
+    {
+        public Kwadrat(int ax, int ay, int avx, int avy, int ar, Color ak)
+            : base(ax, ay, avx, avy, ar, ak)
+        {
+        }
+        override
+        public void rysuj(Graphics g)
+        {
+            g.FillRectangle(b, x - r, y - r, 2 * r, 2 * r);
+        }
+    }
+
+    // Klasa tworzaca figure - trojkat
+    class Trojkat : Figura
+    {
+        public Trojkat(int ax, int ay, int avx, int avy, int ar, Color ak)
+            : base(ax, ay, avx, avy, ar, ak)
+        {
+        }
+        override
+        public void rysuj(Graphics g)
+        {
+            // Do stworzenia potrzebne sa 3 punkty, ktore przypisuje do tablicy
+            Point[] wsp = new Point[3];
+            wsp[0] = new Point(x - r, y - r);
+            wsp[1] = new Point(x, y + r);
+            wsp[2] = new Point(x + r, y - r);
+            g.FillPolygon(b, wsp);
+        }
+    }
+
+    public class MojPanel : Panel
+    {
+        public MojPanel()
+        {
+            DoubleBuffered = true;
+        }
+    }
+
+}
