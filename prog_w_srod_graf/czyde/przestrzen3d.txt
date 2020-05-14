@@ -1,0 +1,150 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using t3d;
+using punkt;
+
+
+namespace zaj11
+{
+    public partial class Form1 : Form
+    {
+        private double r = 10, fi = 45, teta = 60;      //pozycja obserwatora we współrzędnych sferycznych
+        private double s = 1; //predkosc obrotu
+        private Pen kolor = new Pen(Brushes.Yellow); //do zmiany koloru bryly
+
+        public Form1()
+        {
+            InitializeComponent();
+        }
+        //-----------------------------------------------------------------------------
+        //      Punkty p to rogi ostrosłupa o krawędzi 1 metr. Ostrosłup jest widziany z pozycji zadanej współrzędnymi sferycznymi
+        //      Pointsy ep to ich odpowiedniki na ekranie
+        private void mojPanel1_Paint_1(object sender, PaintEventArgs e)
+        {
+            Graphics g = e.Graphics;
+            Punkt obserwator = Punkt.RFiTetaToXYZ(r, fi, teta);    //konwersja sferycznych do kartezjanskich
+            T3d projektor = new T3d(obserwator, mojPanel1.ClientRectangle);
+
+            Punkt[] p = { new Punkt(0, 0, 1),           //ostrosłup
+                          new Punkt(1, 0, 0),
+                          new Punkt(0, 1, 0),
+                          new Punkt(-1, 0, 0),
+                          new Punkt(0, -1, 0) };
+            Point[] ep = new Point[5];
+
+            for (int i = 0; i < p.Length; i++)          //konwersja punktów 3d na ekran
+                projektor.punkt_3d(out ep[i], p[i]);
+
+            g.DrawLine(kolor, ep[1], ep[2]);    //podstawa ostrosłupa
+            g.DrawLine(kolor, ep[2], ep[3]);
+            g.DrawLine(kolor, ep[3], ep[4]);
+            g.DrawLine(kolor, ep[4], ep[1]);
+
+            g.DrawLine(kolor, ep[1], ep[0]);    //boki.
+            g.DrawLine(kolor, ep[2], ep[0]);
+            g.DrawLine(kolor, ep[3], ep[0]);
+            g.DrawLine(kolor, ep[4], ep[0]);
+        }
+        //--------------------------------------------------------------------------------------------------
+        private void timer1_Tick_1(object sender, EventArgs e)
+        {
+            fi += s;
+            if (fi >= 360)
+                fi -= 360;
+            mojPanel1.Invalidate();
+        }
+
+        // Suwak do ustawienia katu pod jakim widoczna jest bryla
+        private void trackBar1_Scroll(object sender, EventArgs e)
+        {
+            fi = trackBar1.Value;
+            mojPanel1.Invalidate();
+        }
+
+        // Przycisk startu
+        private void button1_Click(object sender, EventArgs e)
+        {
+            timer1.Start();
+        }
+        
+        // Przycisk stopu
+        private void button2_Click(object sender, EventArgs e)
+        {
+            timer1.Stop();
+        }
+
+        // Suwak do ustawienia predkosci obrotu bryly
+        private void trackBar2_Scroll(object sender, EventArgs e)
+        {
+            s = trackBar2.Value;
+        }
+
+        // Suwak do ustawienia oddalenia od bryly
+        private void trackBar3_Scroll(object sender, EventArgs e)
+        {
+            r = trackBar3.Value;
+            mojPanel1.Invalidate();
+        }
+
+        // Suwak do zmiany widok na bryle
+        private void trackBar4_Scroll(object sender, EventArgs e)
+        {
+            teta = trackBar4.Value;
+            mojPanel1.Invalidate();
+        }
+
+        // Przycisk do zresetowania zmienionych przez uzytkownika ustawien
+        private void button3_Click(object sender, EventArgs e)
+        {
+            s = 1;
+            r = 10;
+            fi = 45;
+            teta = 60;
+            kolor = new Pen(Brushes.Yellow);
+            button5.BackColor = Color.Yellow;
+            mojPanel1.Invalidate();
+
+            trackBar1.Value = 45;
+            trackBar2.Value = 1;
+            trackBar3.Value = 10;
+            trackBar4.Value = 60;
+        }
+
+        // Przycisk wylaczenia programu
+        private void button4_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+        // Przycisk do zmiany koloru
+        private void button5_Click(object sender, EventArgs e)
+        {
+            ColorDialog clrDialog = new ColorDialog();
+
+            if (clrDialog.ShowDialog() == DialogResult.OK)
+            {
+                kolor.Color = clrDialog.Color;
+                button5.BackColor = clrDialog.Color;
+                mojPanel1.Invalidate();
+            }
+        }
+
+    }
+    //--------------------------------------------------------------------------------------------------
+    class MojPanel : Panel
+    {
+        public MojPanel()
+        {
+            BackColor = Color.Black;
+            DoubleBuffered = true;
+        }
+    }
+}
+
